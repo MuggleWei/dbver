@@ -1,0 +1,6 @@
+pyright
+pynvim
+pyinstaller
+
+PyMySQL
+cryptography
