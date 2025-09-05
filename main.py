@@ -3,6 +3,7 @@ import subprocess
 import sys
 
 from __version__ import __version__
+from command.checker import Checker
 from command.differ import Differ
 from utils.utils import resource_path
 
@@ -20,7 +21,9 @@ def run_check():
     """
     run check
     """
-    logging.error("not implement yet")
+    checker = Checker()
+    if checker.run(sys.argv[2:]) is False:
+        sys.exit(1)
 
 
 def run_inner():
