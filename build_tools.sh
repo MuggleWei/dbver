@@ -14,9 +14,8 @@ fi
 mkdir -p tools
 
 cd _deps
-git clone https://github.com/sqldef/sqldef.git --depth=1 --branch=v2.0.10
+git clone https://github.com/sqldef/sqldef.git --depth=1 --branch=v2.3.0
 
 cd sqldef
 make
 cp -r build/*/mysqldef $origin_dir/tools
-
