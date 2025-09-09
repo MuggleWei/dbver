@@ -59,8 +59,9 @@ def exec_sql_file(sql_filepath, host, port, user, passwd, database, charset, col
             cursor.execute("CREATE DATABASE {} CHARACTER SET {} COLLATE {}".format(database, charset, collate))
             logging.info("USE {}".format(database))
             cursor.execute("USE {}".format(database))
+            logging.info("exec {}".format(sql_filepath))
             for stmt in stmts:
-                logging.info("{}".format(stmt))
+                # logging.info("{}".format(stmt))
                 cursor.execute(stmt)
                 connection.commit()
     except pymysql.Error as e:
