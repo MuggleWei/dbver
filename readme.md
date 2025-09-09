@@ -2,7 +2,7 @@
 
 ## 概述
 `dbver` 是一个以版本视角, 管理数据库表结构的工具, 功能包括
-* 生成不同版本间数据库表结构的更新与回滚语句
+* 通过不同版本的建表语句, 生成不同版本间数据库表结构的更新与回滚语句
 * 检测数据库表结构是否与指定建表语句匹配
 
 ## 打包
@@ -16,7 +16,7 @@
 ./bin/dbver diff \
 	--host=localhost \
 	--port=3306 \
-	--user=muggle \
+	--user=mugglewei \
 	--passwd=xxxxxx \
 	--src=datas/v1.0.0.sql \
 	--dst=datas/v1.1.0.sql
@@ -28,7 +28,7 @@
 ./bin/dbver check \
 	--host=localhost \
 	--port=3306 \
-	--user=muggle \
+	--user=mugglewei \
 	--passwd=xxxxxx \
 	--database=v1_0_0 \
 	--dst=datas/v1.1.0.sql

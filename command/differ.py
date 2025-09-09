@@ -16,12 +16,14 @@ class Differ:
         self._usage_str = "Usage: {} diff [OPTIONS]\n" \
             "\n" \
             "Options: \n" \
-            "  -h, --host   [REQUIRED] mysql host\n" \
-            "  -P, --port   [OPTIONAL] mysql port\n" \
-            "  -u, --user   [REQUIRED] mysql user\n" \
-            "  -p, --passwd [REQUIRED] mysql password\n" \
-            "    , --src    [REQUIRED] source sql file\n" \
-            "    , --dst    [REQUIRED] destination sql file\n" \
+            "  -h, --host    [REQUIRED] mysql host\n" \
+            "  -P, --port    [OPTIONAL] mysql port\n" \
+            "  -u, --user    [REQUIRED] mysql user\n" \
+            "  -p, --passwd  [REQUIRED] mysql password\n" \
+            "    , --src     [REQUIRED] source sql file\n" \
+            "    , --dst     [REQUIRED] destination sql file\n" \
+            "    , --charset [OPTIONAL] create database with character set\n" \
+            "    , --collate [OPTIONAL] create database with collate\n" \
             "".format(sys.argv[0])
         self._host = ""
         self._port = 3306
@@ -33,6 +35,8 @@ class Differ:
         self._dst_name = ""
         self._src_db = ""
         self._dst_db = ""
+        self._charset = "utf8mb4"
+        self._collate = "utf8mb4_bin"
 
     def run(self, args):
         """
@@ -43,14 +47,16 @@ class Differ:
 
         logging.info("----------------")
         logging.info("generate src database({}) from file({})".format(self._src_db, self._src))
-        ret = exec_sql_file(self._src, self._host, self._port, self._user, self._passwd, self._src_db)
+        ret = exec_sql_file(
+            self._src, self._host, self._port, self._user, self._passwd, self._src_db, self._charset, self._collate)
         if ret is not True:
             logging.error("failed generate source database")
             sys.exit(1)
 
         logging.info("----------------")
         logging.info("generate dst database({}) from file({})".format(self._dst_db, self._dst))
-        ret = exec_sql_file(self._dst, self._host, self._port, self._user, self._passwd, self._dst_db)
+        ret = exec_sql_file(
+            self._dst, self._host, self._port, self._user, self._passwd, self._dst_db, self._charset, self._collate)
         if ret is not True:
             logging.error("failed generate dst database")
             sys.exit(1)
@@ -115,7 +121,7 @@ class Differ:
         """
         opts, _ = getopt.getopt(
             args, "h:P:u:p:",
-            ["help", "host=", "port=", "user=", "passwd=", "src=", "dst="]
+            ["help", "host=", "port=", "user=", "passwd=", "src=", "dst=", "charset=", "collate="]
         )
         for opt, arg in opts:
             if opt in ("--help"):
@@ -137,6 +143,10 @@ class Differ:
                 self._dst = arg
                 self._dst_name = pathlib.Path(self._dst).stem
                 self._dst_db = self._dst_name.replace(".", "_")
+            elif opt in ("--charset"):
+                self._charset = arg
+            elif opt in ("--collate"):
+                self._collate = arg
 
         if len(self._host) == 0:
             logging.error("run without 'host' field")

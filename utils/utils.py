@@ -32,7 +32,7 @@ def parse_sql_file(sql_filepath):
                 stmt = ''
     return stmts
 
-def exec_sql_file(sql_filepath, host, port, user, passwd, database):
+def exec_sql_file(sql_filepath, host, port, user, passwd, database, charset, collate):
     """
     execute sql file
     :param sql_filepath: sql filepath
@@ -41,6 +41,8 @@ def exec_sql_file(sql_filepath, host, port, user, passwd, database):
     :param user: db user
     :param passwd: db passwd
     :param database: db database
+    :param charset: db default charset
+    :param collate: db default collate
     """
     ret = True
     stmts = parse_sql_file(sql_filepath=sql_filepath)
@@ -53,8 +55,8 @@ def exec_sql_file(sql_filepath, host, port, user, passwd, database):
         with connection.cursor() as cursor:
             logging.info("DROP DATABASE IF EXISTS {}".format(database))
             cursor.execute("DROP DATABASE IF EXISTS {}".format(database))
-            logging.info("CREATE DATABASE {}".format(database))
-            cursor.execute("CREATE DATABASE {}".format(database))
+            logging.info("CREATE DATABASE {} CHARACTER SET {} COLLATE {}".format(database, charset, collate))
+            cursor.execute("CREATE DATABASE {} CHARACTER SET {} COLLATE {}".format(database, charset, collate))
             logging.info("USE {}".format(database))
             cursor.execute("USE {}".format(database))
             for stmt in stmts:
