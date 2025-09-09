@@ -3,5 +3,5 @@ CREATE TABLE `user` (
   `name` varchar(64) DEFAULT '',
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_name` (`name`)
+  INDEX idx_name (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
