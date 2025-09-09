@@ -29,6 +29,9 @@ _artifacts/
 /tools/
 /output/
 
+# docker volume
+docker_volume/
+
 ######### python #########
 # Byte-compiled / optimized / DLL files
 __pycache__/
