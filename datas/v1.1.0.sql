@@ -1,6 +1,6 @@
 CREATE TABLE `user` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) DEFAULT '',
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `name` varchar(64) DEFAULT '' COMMENT 'user name;',
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   INDEX idx_name (`name`)
