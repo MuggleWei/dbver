@@ -26,8 +26,9 @@ def parse_sql_file(sql_filepath):
         if line:
             if line.startswith('--'):
                 continue
-            stmt += line.strip() + ' '
-            if ';' in stmt:
+            cur_line = line.strip()
+            stmt += cur_line + ' '
+            if (len(cur_line) > 0) and (cur_line[len(cur_line) - 1] == ";"):
                 stmts.append(stmt.strip())
                 stmt = ''
     return stmts
