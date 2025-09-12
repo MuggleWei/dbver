@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+from pymysql.connections import CLIENT
 import pymysql.cursors
 
 
@@ -13,25 +14,6 @@ def resource_path(rel):
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, rel)
     return os.path.join(os.path.dirname(__file__), "../", rel)
-
-def parse_sql_file(sql_filepath):
-    """
-    parse sql file
-    """
-    with open(sql_filepath, 'r', encoding='utf-8') as f:
-        data = f.read().splitlines()
-    stmt = ''
-    stmts = []
-    for line in data:
-        if line:
-            if line.startswith('--'):
-                continue
-            cur_line = line.strip()
-            stmt += cur_line + ' '
-            if (len(cur_line) > 0) and (cur_line[len(cur_line) - 1] == ";"):
-                stmts.append(stmt.strip())
-                stmt = ''
-    return stmts
 
 def exec_sql_file(sql_filepath, host, port, user, passwd, database, charset, collate):
     """
@@ -46,12 +28,13 @@ def exec_sql_file(sql_filepath, host, port, user, passwd, database, charset, col
     :param collate: db default collate
     """
     ret = True
-    stmts = parse_sql_file(sql_filepath=sql_filepath)
+    # stmts = parse_sql_file(sql_filepath=sql_filepath)
     connection = pymysql.connect(host=host,
                                  port=port,
                                  user=user,
                                  password=passwd,
-                                 cursorclass=pymysql.cursors.DictCursor)
+                                 cursorclass=pymysql.cursors.DictCursor,
+                                 client_flag=CLIENT.MULTI_STATEMENTS)
     try:
         with connection.cursor() as cursor:
             logging.info("DROP DATABASE IF EXISTS {}".format(database))
@@ -61,10 +44,9 @@ def exec_sql_file(sql_filepath, host, port, user, passwd, database, charset, col
             logging.info("USE {}".format(database))
             cursor.execute("USE {}".format(database))
             logging.info("exec {}".format(sql_filepath))
-            for stmt in stmts:
-                # logging.info("{}".format(stmt))
-                cursor.execute(stmt)
-                connection.commit()
+            with open(sql_filepath, "r", encoding="utf-8") as f:
+                sql_scripts = f.read()
+                cursor.execute(sql_scripts)
     except pymysql.Error as e:
         logging.error("failed exec sql, {}".format(e))
         connection.rollback()
