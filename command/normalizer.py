@@ -7,13 +7,12 @@ import sys
 
 from utils.utils import exec_sql_file, resource_path
 
-
-class Differ:
+class Normalizer:
     """
-    differ
+    normailzer
     """
     def __init__(self) -> None:
-        self._usage_str = "Usage: {} diff [OPTIONS]\n" \
+        self._usage_str = "Usage: {} normal [OPTIONS]\n" \
             "\n" \
             "Options: \n" \
             "  -h, --host    [REQUIRED] mysql host\n" \
@@ -21,7 +20,6 @@ class Differ:
             "  -u, --user    [REQUIRED] mysql user\n" \
             "  -p, --passwd  [REQUIRED] mysql password\n" \
             "    , --src     [REQUIRED] source sql file\n" \
-            "    , --dst     [REQUIRED] destination sql file\n" \
             "    , --charset [OPTIONAL] create database with character set, by default, value is utf8mb4\n" \
             "    , --collate [OPTIONAL] create database with collate, by default, value is utf8mb4_bin\n" \
             "".format(sys.argv[0])
@@ -32,15 +30,10 @@ class Differ:
         self._charset = "utf8mb4"
         self._collate = "utf8mb4_bin"
         self._src = ""
-        self._dst = ""
-        self._src_name = ""
-        self._dst_name = ""
-        self._src_db = ""
-        self._dst_db = ""
 
     def run(self, args):
         """
-        run differ
+        run normalize
         """
         if self._init(args=args) is False:
             return False
@@ -54,68 +47,30 @@ class Differ:
             logging.error("failed generate source database")
             sys.exit(1)
 
-        logging.info("----------------")
-        logging.info("generate dst database({}) from file({})".format(self._dst_db, self._dst))
-        ret = exec_sql_file(
-            self._dst, self._host, self._port, self._user, self._passwd, self._dst_db, self._charset, self._collate)
-        if ret is not True:
-            logging.error("failed generate dst database")
-            sys.exit(1)
-
         os.makedirs("output", exist_ok=True)
         mysqldef = resource_path("tools/mysqldef")
 
-        # generate update&rollback sql file
+        # generate normal sql file
         logging.info("----------------")
-        logging.info("generate update sql file")
+        logging.info("generate normal sql file")
         args = [mysqldef,
                 "-h", self._host,
                 "-P", str(self._port),
                 "-u", self._user,
                 "-p", self._passwd,
-                self._src_db, "--dry-run"]
-        update_sql_filepath = os.path.join(
-            "output", "update-{}-{}.sql".format(self._src_name, self._dst_name))
-        with open(update_sql_filepath, "w", encoding="utf-8") as writer:
+                self._src_db, "--export"]
+        normal_src = os.path.join("output", "{}.sql".format(self._src_name))
+        with open(normal_src, "w", encoding="utf-8") as writer:
             with subprocess.Popen(
                 args=args,
-                stdin=open(self._dst, "r", encoding="utf-8"),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True) as proc:
                 for line in proc.stdout:
-                    if line.startswith("--"):
-                        continue
                     writer.write(line.rstrip())
                     writer.write("\n")
                 proc.communicate()
-        logging.info("generate update sql file: {}".format(update_sql_filepath))
-
-        logging.info("----------------")
-        logging.info("generate rollback sql file")
-        mysqldef = resource_path("tools/mysqldef")
-        args = [mysqldef,
-                "-h", self._host,
-                "-P", str(self._port),
-                "-u", self._user,
-                "-p", self._passwd,
-                self._dst_db, "--dry-run"]
-        rollback_sql_filepath = os.path.join(
-            "output", "rollback-{}-{}.sql".format(self._src_name, self._dst_name))
-        with open(rollback_sql_filepath, "w", encoding="utf-8") as writer:
-            with subprocess.Popen(
-                args=args,
-                stdin=open(self._src, "r", encoding="utf-8"),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True) as proc:
-                for line in proc.stdout:
-                    if line.startswith("--"):
-                        continue
-                    writer.write(line.rstrip())
-                    writer.write("\n")
-                proc.communicate()
-        logging.info("generate rollback sql file: {}".format(rollback_sql_filepath))
+        logging.info("generate normal src sql file: {}".format(normal_src))
 
     def _init(self, args):
         """
@@ -123,7 +78,7 @@ class Differ:
         """
         opts, _ = getopt.getopt(
             args, "h:P:u:p:",
-            ["help", "host=", "port=", "user=", "passwd=", "src=", "dst=", "charset=", "collate="]
+            ["help", "host=", "port=", "user=", "passwd=", "src=", "dst=", "charset=", "collate=", "normal="]
         )
         for opt, arg in opts:
             if opt in ("--help"):
@@ -141,10 +96,6 @@ class Differ:
                 self._src = arg
                 self._src_name = pathlib.Path(self._src).stem
                 self._src_db = self._src_name.replace(".", "_")
-            elif opt in ("--dst"):
-                self._dst = arg
-                self._dst_name = pathlib.Path(self._dst).stem
-                self._dst_db = self._dst_name.replace(".", "_")
             elif opt in ("--charset"):
                 self._charset = arg
             elif opt in ("--collate"):
@@ -168,10 +119,6 @@ class Differ:
             return False
         if len(self._src) == 0:
             logging.error("run without 'src' field")
-            logging.error(self._usage_str)
-            return False
-        if len(self._dst) == 0:
-            logging.error("run without 'dst' field")
             logging.error(self._usage_str)
             return False
 
