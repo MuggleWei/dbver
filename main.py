@@ -5,6 +5,7 @@ import sys
 from __version__ import __version__
 from command.checker import Checker
 from command.differ import Differ
+from command.normalizer import Normalizer
 from utils.utils import resource_path
 
 
@@ -23,6 +24,14 @@ def run_check():
     """
     checker = Checker()
     if checker.run(sys.argv[2:]) is False:
+        sys.exit(1)
+
+def run_normalize():
+    """
+    run normalize
+    """
+    normalizer = Normalizer()
+    if normalizer.run(sys.argv[2:]) is False:
         sys.exit(1)
 
 
@@ -82,6 +91,7 @@ if __name__ == "__main__":
     usage_str = "Usage: {} COMMAND [OPTIONS]\n" \
         "\n" \
         "Commands:\n" \
+        "  normal  nromalize sql file\n" \
         "  diff    generate update and rollback sql\n" \
         "  check   check is db match\n" \
         "".format(sys.argv[0])
@@ -102,6 +112,7 @@ if __name__ == "__main__":
     command_dict = {
         "diff": run_diff,
         "check": run_check,
+        "normal": run_normalize,
         "inner": run_inner,
     }
 
