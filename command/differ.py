@@ -73,7 +73,7 @@ class Differ:
                 "-P", str(self._port),
                 "-u", self._user,
                 "-p", self._passwd,
-                self._src_db, "--dry-run"]
+                self._src_db, "--enable-drop", "--dry-run"]
         update_sql_filepath = os.path.join(
             "output", "update-{}-{}.sql".format(self._src_name, self._dst_name))
         with open(update_sql_filepath, "w", encoding="utf-8") as writer:
@@ -99,7 +99,7 @@ class Differ:
                 "-P", str(self._port),
                 "-u", self._user,
                 "-p", self._passwd,
-                self._dst_db, "--dry-run"]
+                self._dst_db, "--enable-drop", "--dry-run"]
         rollback_sql_filepath = os.path.join(
             "output", "rollback-{}-{}.sql".format(self._src_name, self._dst_name))
         with open(rollback_sql_filepath, "w", encoding="utf-8") as writer:
