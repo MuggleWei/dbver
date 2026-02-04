@@ -44,7 +44,7 @@ class Checker:
                 "-P", str(self._port),
                 "-u", self._user,
                 "-p", self._passwd,
-                self._database, "--dry-run"]
+                self._database, "--enable-drop", "--dry-run"]
         cnt = 0
         with subprocess.Popen(
             args=args,

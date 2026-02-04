@@ -4,3 +4,4 @@ pyinstaller
 
 PyMySQL
 cryptography
+sqlglot
