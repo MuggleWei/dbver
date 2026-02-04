@@ -5,6 +5,7 @@ import sys
 from __version__ import __version__
 from command.checker import Checker
 from command.differ import Differ
+from command.fcc import Fcc
 from command.normalizer import Normalizer
 from utils.utils import resource_path
 
@@ -26,12 +27,22 @@ def run_check():
     if checker.run(sys.argv[2:]) is False:
         sys.exit(1)
 
+
 def run_normalize():
     """
     run normalize
     """
     normalizer = Normalizer()
     if normalizer.run(sys.argv[2:]) is False:
+        sys.exit(1)
+
+
+def run_fcc():
+    """
+    run field consistency check
+    """
+    fcc = Fcc()
+    if fcc.run(sys.argv[2:]) is False:
         sys.exit(1)
 
 
@@ -47,7 +58,7 @@ def run_inner():
         args=args,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        text=True)  as proc:
+        text=True) as proc:
         for line in proc.stdout:
             print(line.rstrip())
         proc.communicate()
@@ -74,7 +85,6 @@ class LogCustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
-
 
 
 if __name__ == "__main__":
@@ -113,6 +123,7 @@ if __name__ == "__main__":
         "diff": run_diff,
         "check": run_check,
         "normal": run_normalize,
+        "fcc": run_fcc,
         "inner": run_inner,
     }
 
