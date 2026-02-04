@@ -51,3 +51,13 @@
 ```
 注意
 * 这里需要连接可以连接的 MySQL 兼容数据库, 这条命令不会创建任何 database, 只是将 sql 文件与 database 进行对比, 可以安全的在生产环境使用
+
+### fcc 命令
+`fcc` 命令用于字段一致性校验, 检查所指定的文件, 相同字段名称是否拥有相同的类型
+```
+./bin/dbver fcc -f datas/v1.0.0.sql -f datas/v1.1.0.sql
+```
+或者
+```
+./bin/dbver fcc -d datas
+```
